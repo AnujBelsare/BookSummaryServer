@@ -29,7 +29,7 @@ const UserSchema = new Schema(
       type: String,
       required: true,
       minlength: 6,
-      select: false, 
+      select: false,
     },
 
     isVerified: {
@@ -56,9 +56,14 @@ const UserSchema = new Schema(
       type: Date,
       select: false,
     },
+    refreshTokens: {
+      type: [String],
+      default: [],
+    },
+
   },
   {
-    timestamps: true, 
+    timestamps: true,
   }
 );
 

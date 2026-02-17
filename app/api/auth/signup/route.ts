@@ -58,6 +58,9 @@ export async function POST(req: Request) {
             { expiresIn: "7d" }
         );
 
+        newUser.refreshTokens.push(refreshToken);
+        await newUser.save();
+
         return NextResponse.json(
             {
                 message: "User created successfully",

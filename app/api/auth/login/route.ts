@@ -51,6 +51,9 @@ export async function POST(req: Request) {
       { expiresIn: "7d" }
     );
 
+    user.refreshTokens.push(refreshToken);
+    await user.save();
+
     return NextResponse.json({
       user: {
         id: user._id,
