@@ -1,0 +1,43 @@
+import { model, models, Schema, Types } from "mongoose";
+
+
+const BookSummarySchema = new Schema(
+    {
+        book: {
+            type: Types.ObjectId,
+            ref: "Book",
+            required: true,
+            index: true,
+        },
+        user: {
+            type: Types.ObjectId,
+            ref: "User",
+            required: true,
+            index: true,
+        },
+        title: {
+            type: String,
+            required: true,
+            trim: true,
+            maxlength: 200,
+        },
+        content: {
+            type: Schema.Types.Mixed,
+            required: true,
+        },
+        plainText: {
+            type: String,
+        },
+        readingTime: {
+            type: Number,
+        },
+
+    },
+    {
+        timestamps: true,
+    }
+);
+
+const BookSummary = models.BookSummary || model("BookSummary", BookSummarySchema);
+
+export default BookSummary;
