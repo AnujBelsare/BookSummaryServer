@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Toaster } from 'react-hot-toast';
 import { Libre_Baskerville, DM_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -27,6 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${dmSans.variable} ${libreBaskerville.variable}`}>
       <body className="font-sans bg-background text-foreground antialiased">
+        <Toaster position="top-right" />
         <div className="mx-auto max-w-7xl">
           {children}
         </div>

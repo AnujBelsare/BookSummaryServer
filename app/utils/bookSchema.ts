@@ -28,7 +28,11 @@ export const bookSchema = z.object({
         .number("Rating must be a number")
         .min(1, "Minimum rating is 1")
         .max(5, "Maximum rating is 5"),
-
+    isbn: z
+        .string()
+        .min(10, "ISBN must be at least 10 characters")
+        .max(17, "ISBN can be at most 17 characters")
+        .regex(/^[\d-]+$/, "ISBN can only contain numbers and hyphens"),
     coverImage: z
         .custom<FileList>()
         .refine((files) => files && files.length > 0, "Cover image is required.")

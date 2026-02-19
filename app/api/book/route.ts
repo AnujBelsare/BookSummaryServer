@@ -1,7 +1,7 @@
 import connectDB from "@/app/lib/db";
 import Book from "@/app/models/Book";
 import { NextResponse } from "next/server";
-
+import cloudinary from "@/app/lib/cloudinary";
 
 export async function GET(req: Request) {
     try {
@@ -67,35 +67,60 @@ export async function GET(req: Request) {
 }
 
 
-
 export async function POST(req: Request) {
     try {
         await connectDB();
 
-        const body = await req.json();
-        const { title, author, isbn, genres } = body;
+        const formData = await req.formData();
+        
+        const title = formData.get("title") as string;
+        const author = formData.get("author") as string;
+        const isbn = formData.get("isbn") as string;
+        const description = formData.get("description") as string;
+        const year = formData.get("year") as string;
+        const genre = formData.get("genre") as string;
+        const rating = formData.get("rating") as string;
+        const coverImage = formData.get("coverImage") as File | null;
 
-        if (!title || !author) {
+        if (!title || !author || !isbn) {
             return NextResponse.json(
-                { success: false, message: "Title and author are required" },
+                { success: false, message: "Title, author, and ISBN are required." },
                 { status: 400 }
             );
         }
 
-        // Prevent duplicate ISBN
-        if (isbn) {
-            const existing = await Book.findOne({ isbn });
-            if (existing) {
-                return NextResponse.json(
-                    { success: false, message: "Book with this ISBN already exists" },
-                    { status: 409 }
-                );
-            }
+        const existing = await Book.findOne({ isbn });
+        if (existing) {
+            return NextResponse.json(
+                { success: false, message: "A book with this ISBN already exists in the library." },
+                { status: 409 }
+            );
+        }
+
+        let coverImageUrl = "";
+        
+        if (coverImage && coverImage.size > 0) {
+            const arrayBuffer = await coverImage.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            
+            const base64Image = `data:${coverImage.type};base64,${buffer.toString("base64")}`;
+
+            const uploadResponse = await cloudinary.uploader.upload(base64Image, {
+                folder: "aquilastudios_library", 
+            });
+            
+            coverImageUrl = uploadResponse.secure_url;
         }
 
         const book = await Book.create({
-            ...body,
-            genres: genres?.map((g: string) => g.trim().toLowerCase()),
+            title,
+            author,
+            isbn,
+            description,
+            publishedDate: year ? new Date(parseInt(year), 0, 1) : undefined,
+            genres: genre ? [genre.trim()] : [],
+            averageRating: rating ? parseFloat(rating) : 0,
+            coverImage: coverImageUrl,
         });
 
         return NextResponse.json(
@@ -104,10 +129,9 @@ export async function POST(req: Request) {
         );
 
     } catch (error) {
-        console.error("Book create error:", error);
-
+        console.error("Book creation error:", error);
         return NextResponse.json(
-            { success: false, message: "Error creating book" },
+            { success: false, message: "Internal server error while creating book." },
             { status: 500 }
         );
     }
