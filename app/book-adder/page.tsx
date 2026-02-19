@@ -12,17 +12,16 @@ export default function AddBookPage() {
     const {
         register,
         handleSubmit,
-        reset, // 1. Pulled in the reset function
+        reset,
         formState: { errors },
     } = useForm<Book>({
         resolver: zodResolver(bookSchema),
     });
 
-    // Custom toast styling to match your dark theme
     const toastStyle = {
-        background: '#222222', // --card
-        color: '#F0ECE2',      // --foreground
-        border: '1px solid #2A2A2A', // --divider
+        background: '#222222',
+        color: '#F0ECE2',
+        border: '1px solid #2A2A2A',
     };
 
     const onSubmit = async (data: Book) => {
@@ -54,27 +53,22 @@ export default function AddBookPage() {
                 throw new Error(result.message || "Failed to add book to the library.");
             }
 
-            // 2. Trigger the success toast with custom styling
             toast.success("Title added to your collection.", {
                 style: toastStyle,
                 iconTheme: {
-                    primary: '#9381FF', // --accent-color
+                    primary: '#9381FF',
                     secondary: '#1A1A1A',
                 },
             });
-
-            // 3. Clear the form completely
             reset();
 
         } catch (error: any) {
             console.error("Submission Error:", error);
-            // Trigger the error toast
             toast.error(error.message || "An unexpected error occurred.", {
                 style: toastStyle,
             });
         } finally {
-            // Moved this to a finally block so it always runs, even on errors
-            setIsLoading(false); 
+            setIsLoading(false);
         }
     }
 
