@@ -4,17 +4,16 @@ import BookSummary from "@/app/models/BookSummary";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 
-
 export async function PATCH(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ bookId: string }> }
 ) {
     try {
         await connectDB();
 
-        const { id } = params;
+        const { bookId } = await params;
 
-        if (!mongoose.Types.ObjectId.isValid(id)) {
+        if (!mongoose.Types.ObjectId.isValid(bookId)) {
             return NextResponse.json(
                 { success: false, message: "Invalid book ID" },
                 { status: 400 }
@@ -46,7 +45,7 @@ export async function PATCH(
         if (updates.isbn) {
             const existing = await Book.findOne({
                 isbn: updates.isbn,
-                _id: { $ne: id },
+                _id: { $ne: bookId },
             });
 
             if (existing) {
@@ -58,7 +57,7 @@ export async function PATCH(
         }
 
         const updatedBook = await Book.findByIdAndUpdate(
-            id,
+            bookId,
             updates,
             { new: true, runValidators: true }
         );
@@ -85,26 +84,26 @@ export async function PATCH(
     }
 }
 
-
 export async function DELETE(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ bookId: string }> }
 ) {
     try {
         await connectDB();
 
-        const { id } = params;
+        // ✅ Await params to extract bookId properly
+        const { bookId } = await params;
 
         // ✅ Validate ObjectId
-        if (!mongoose.Types.ObjectId.isValid(id)) {
+        if (!mongoose.Types.ObjectId.isValid(bookId)) {
             return NextResponse.json(
                 { success: false, message: "Invalid book ID" },
                 { status: 400 }
             );
         }
 
-        // 1️⃣ Check if book exists
-        const book = await Book.findById(id);
+        // 1️⃣ Check if book exists using bookId
+        const book = await Book.findById(bookId);
 
         if (!book) {
             return NextResponse.json(
@@ -113,11 +112,11 @@ export async function DELETE(
             );
         }
 
-        // 2️⃣ Delete summary linked to this book
-        await BookSummary.findOneAndDelete({ book: id });
+        // 2️⃣ Delete summary linked to this book using bookId
+        await BookSummary.findOneAndDelete({ book: bookId });
 
-        // 3️⃣ Delete book
-        await Book.findByIdAndDelete(id);
+        // 3️⃣ Delete book using bookId
+        await Book.findByIdAndDelete(bookId);
 
         return NextResponse.json({
             success: true,
@@ -133,4 +132,3 @@ export async function DELETE(
         );
     }
 }
-
