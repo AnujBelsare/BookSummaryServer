@@ -18,11 +18,11 @@ function extractPlainText(content: any): string {
 }
 
 // GET...
-export async function GET(req: Request, { params }: { params: { bookId: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ bookId: string }> }) {
     try {
         await connectDB();
 
-        const { bookId } = params;
+        const { bookId } = await params;
 
         if (!mongoose.Types.ObjectId.isValid(bookId)) {
             return NextResponse.json(
@@ -69,11 +69,11 @@ export async function GET(req: Request, { params }: { params: { bookId: string }
 }
 
 // POST...
-export async function POST(req: Request, { params }: { params: { bookId: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ bookId: string }> }) {
     try {
         await connectDB();
 
-        const { bookId } = params;
+        const { bookId } = await params;
 
         if (!mongoose.Types.ObjectId.isValid(bookId)) {
             return NextResponse.json({ success: false, message: "Invalid book ID" }, { status: 400 });
@@ -139,11 +139,11 @@ export async function POST(req: Request, { params }: { params: { bookId: string 
 }
 
 // PATCH...
-export async function PATCH(req: Request, { params }: { params: { bookId: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ bookId: string }> }) {
     try {
         await connectDB();
 
-        const { bookId } = params;
+        const { bookId } = await params;
 
         if (!mongoose.Types.ObjectId.isValid(bookId)) {
             return NextResponse.json(

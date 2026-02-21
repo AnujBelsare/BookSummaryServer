@@ -150,10 +150,10 @@ function BookShow() {
 
                                 {/* Call to Action Button */}
                                 <Link
-                                    href={'/'}
+                                    href={`/summary/${book._id}`}
                                     className="block w-full text-center py-3 px-6 hover:bg-indigo-400 bg-accent text-gray-200 font-semibold rounded-xl transition-colors duration-300"
                                 >
-                                    Read Summary
+                                    Add Summary
                                 </Link>
                             </div>
                         </div>
